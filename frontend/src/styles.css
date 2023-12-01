@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*#region Custom Scrollbar */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: #252525;
+}
+
+::-webkit-scrollbar {
+    width: 14px;
+    background-color: #2e2e2e;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #505050;
+}
+
+/*#endregion*/
+
+/*#region Responsive*/
+@media (max-width: 900px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+@media (min-width: 901px) {
+    .hide-desktop {
+        display: none !important;
+    }
+}
+
+/*#endregion*/
+
+/*#region Material Dialog */
+.mat-mdc-dialog-surface {
+    border-radius: 20px !important;
+}
+
+.mdc-dialog__surface {
+    background-color: #1f2937 !important;
+}
+
+/*#endregion*/
