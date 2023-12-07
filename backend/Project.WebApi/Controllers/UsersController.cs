@@ -48,11 +48,11 @@ namespace Project.WebApi.Controllers
         public IActionResult GetSingleById(string id)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get user and check if exist
             User? user = _repo.UserRepo.GetById(id);
-            if (user == null) return NotFound("User not found");
+            if (user == null) return StatusCode(StatusCodes.Status404NotFound, "User not found");
 
             return Ok(user);
         }
@@ -65,7 +65,7 @@ namespace Project.WebApi.Controllers
             string audienceId = _jwtProvider.GetIdFromRequest(Request);
 
             // check if audience exists
-            if (!_repo.UserRepo.Exist("Id", audienceId, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (!_repo.UserRepo.Exist("Id", audienceId, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get the user from the http context
             User? user = await _userManager.FindByIdAsync(audienceId);
@@ -80,8 +80,8 @@ namespace Project.WebApi.Controllers
         {
 
             // checks on the loginModel
-            if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || model.Email.Contains(" ")) return BadRequest("Email is not valid");
-            if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return BadRequest("Password is not valid");
+            if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || model.Email.Contains(" ")) return StatusCode(StatusCodes.Status400BadRequest, "Email is not valid");
+            if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return StatusCode(StatusCodes.Status400BadRequest, "Password is not valid");
 
             // get the user form db and check if exists
             User? user = await _userManager.FindByEmailAsync(model.Email);
@@ -149,23 +149,23 @@ namespace Project.WebApi.Controllers
         public async Task<IActionResult> RefreshToken(string refreshToken)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get the user form db and check if exists
             User? user = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            if (user == null) return Unauthorized("Access denied");
-            if (user.IsDeleted) return Unauthorized("User is deactivated");
+            if (user == null) return StatusCode(StatusCodes.Status401Unauthorized, "Access denied");
+            if (user.IsDeleted) return StatusCode(StatusCodes.Status401Unauthorized, "User is deactivated");
 
             // check the refresh token on the db
-            if (user.RefreshToken != refreshToken) return Unauthorized("RefreshToken not valid");
+            if (user.RefreshToken != refreshToken) return StatusCode(StatusCodes.Status401Unauthorized, "RefreshToken not valid");
 
             // check the token's expire date
-            if (new JwtSecurityTokenHandler().ReadToken(refreshToken) is not JwtSecurityToken jsonToken) return Unauthorized("RefreshToken not valid");
+            if (new JwtSecurityTokenHandler().ReadToken(refreshToken) is not JwtSecurityToken jsonToken) return StatusCode(StatusCodes.Status401Unauthorized, "RefreshToken not valid");
             if (_jwtProvider.GetExpirationDate(refreshToken) < DateTime.UtcNow)
             {
                 user.RefreshToken = null;
                 await _userManager.UpdateAsync(user);
-                return Unauthorized("RefreshToken expired");
+                return StatusCode(StatusCodes.Status401Unauthorized, "RefreshToken expired");
             }
 
             // build tokens
@@ -190,15 +190,20 @@ namespace Project.WebApi.Controllers
         {
 
             // check the model's property
-            if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return BadRequest("Password is not valid");
-            if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || !Regex.IsMatch(model.Email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return BadRequest("Email is not valid");
+            if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return StatusCode(StatusCodes.Status400BadRequest, "Password is not valid");
+            if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || !Regex.IsMatch(model.Email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return StatusCode(StatusCodes.Status400BadRequest, "Email is not valid");
+
+            // check the existance with the same username
+            var userExists = await _userManager.FindByNameAsync(model.Username);
+            if (userExists != null) return StatusCode(StatusCodes.Status400BadRequest, "Username already exists");
 
             // instantiate the object
             User user = new()
             {
-                UserName = Guid.NewGuid().ToString().Replace("-", ""),
+                UserName = model.Username,
                 Email = model.Email,
                 IsDeleted = false,
+                LockoutEnabled = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
             };
 
@@ -209,7 +214,7 @@ namespace Project.WebApi.Controllers
             // adding role
             _repo.UserRoleRepo.Create(new UserRole { UserId = user.Id, RoleId = Role.Registered.Id });
 
-            return Created("User created successfully", user);
+            return StatusCode(StatusCodes.Status201Created, user.Email);
         }
 
         [HttpPost]
@@ -218,18 +223,23 @@ namespace Project.WebApi.Controllers
         public async Task<IActionResult> RegisterAdmin(RegisterModel model)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // check the model's property
-            if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return BadRequest("Password is not valid");
-            if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || !Regex.IsMatch(model.Email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return BadRequest("Email is not valid");
+            if (string.IsNullOrEmpty(model.Password) || model.Password.Length > 40) return StatusCode(StatusCodes.Status400BadRequest, "Password is not valid");
+            if (string.IsNullOrEmpty(model.Email) || model.Email.Length > 40 || !Regex.IsMatch(model.Email, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return StatusCode(StatusCodes.Status400BadRequest, "Email is not valid");
+
+            // check the existance with the same username
+            var userExists = await _userManager.FindByNameAsync(model.Username);
+            if (userExists != null) return StatusCode(StatusCodes.Status400BadRequest, "Username already exists");
 
             // instantiate the object
             User user = new()
             {
-                UserName = Guid.NewGuid().ToString().Replace("-", ""),
+                UserName = model.Username,
                 Email = model.Email,
                 IsDeleted = false,
+                LockoutEnabled = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
             };
 
@@ -240,7 +250,7 @@ namespace Project.WebApi.Controllers
             // adding role
             _repo.UserRoleRepo.Create(new UserRole { UserId = user.Id, RoleId = Role.Admin.Id });
 
-            return Created("Admin created successfully", user);
+            return StatusCode(StatusCodes.Status201Created, user.Email);
         }
 
         [HttpPut]
@@ -249,19 +259,19 @@ namespace Project.WebApi.Controllers
         public IActionResult UserToAdmin(string id)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get user and check if exist
             User? user = _repo.UserRepo.GetById(id);
-            if (user == null) return NotFound("User not found");
-            if (user.IsDeleted) return NotFound("User is deactivated");
+            if (user == null) return StatusCode(StatusCodes.Status404NotFound, "User not found");
+            if (user.IsDeleted) return StatusCode(StatusCodes.Status404NotFound, "User is deactivated");
 
             // adding role
             Result result = _repo.UserRoleRepo.Create(new UserRole { UserId = user.Id, RoleId = Role.Admin.Id });
 
             if (result.Success)
             {
-                return Ok("User upgraded successfully to admin");
+                return StatusCode(StatusCodes.Status200OK, "User upgraded successfully to admin");
             }
             else
             {
@@ -275,20 +285,20 @@ namespace Project.WebApi.Controllers
         public IActionResult AdminToUser(string id)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get user and check if exist
             User? user = _repo.UserRepo.GetById(id);
-            if (user == null) return NotFound("User not found");
-            if (user.IsDeleted) return NotFound("User is deactivated");
+            if (user == null) return StatusCode(StatusCodes.Status404NotFound, "User not found");
+            if (user.IsDeleted) return StatusCode(StatusCodes.Status404NotFound, "User is deactivated");
 
-            if (id == User.FindFirstValue(ClaimTypes.NameIdentifier)) return BadRequest("You cannot downgrade yourself");
+            if (id == User.FindFirstValue(ClaimTypes.NameIdentifier)) return StatusCode(StatusCodes.Status400BadRequest, "You cannot downgrade yourself");
 
             Result result = _repo.UserRoleRepo.DeleteByFilter(x => x.UserId == user.Id && x.RoleId == Role.Admin.Id);
 
             if (result.Success)
             {
-                return Ok("Admin downgraded to user successfully");
+                return StatusCode(StatusCodes.Status200OK, "Admin downgraded to user successfully");
             }
             else
             {
@@ -302,13 +312,13 @@ namespace Project.WebApi.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordModel model)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get the user from the http context
             User? user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             // checks on passwords
-            if (model.CurrentPassword == model.NewPassword || await _userManager.CheckPasswordAsync(user!, model.CurrentPassword)) return BadRequest("New and old password are equal");
+            if (model.CurrentPassword == model.NewPassword || await _userManager.CheckPasswordAsync(user!, model.CurrentPassword)) return StatusCode(StatusCodes.Status400BadRequest, "New and old password are equal");
 
             // update password
             var token = await _userManager.GeneratePasswordResetTokenAsync(user!);
@@ -316,7 +326,7 @@ namespace Project.WebApi.Controllers
 
             if (result.Succeeded)
             {
-                return Ok("Password updated successfully");
+                return StatusCode(StatusCodes.Status200OK, "Password updated successfully");
             }
             else
             {
@@ -331,23 +341,22 @@ namespace Project.WebApi.Controllers
         {
 
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // checks on newUsername
-            if (string.IsNullOrEmpty(model.NewUserName) || model.NewUserName.Length > 40 || model.NewUserName.Contains(" ")) return BadRequest("Username is not valid");
-
+            if (string.IsNullOrEmpty(model.NewUserName) || model.NewUserName.Length > 40 || model.NewUserName.Contains(" ")) return StatusCode(StatusCodes.Status400BadRequest, "Username is not valid");
 
             // check the existance with the same username
             var userExists = await _userManager.FindByNameAsync(model.NewUserName);
-            if (userExists != null) return BadRequest("Username already exists");
+            if (userExists != null) return StatusCode(StatusCodes.Status400BadRequest, "Username already exists");
 
             // get the audience and check if exists
             User? user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            if (user == null) return NotFound("User not found");
-            if (user.IsDeleted) return NotFound("User is deactivated");
+            if (user == null) return StatusCode(StatusCodes.Status404NotFound, "User not found");
+            if (user.IsDeleted) return StatusCode(StatusCodes.Status404NotFound, "User is deactivated");
 
             // checks on passwords
-            if (await _userManager.CheckPasswordAsync(user!, model.CurrentPassword)) return BadRequest("Password not valid");
+            if (await _userManager.CheckPasswordAsync(user!, model.CurrentPassword)) return StatusCode(StatusCodes.Status400BadRequest, "Password not valid");
 
             // update Username
             user.UserName = model.NewUserName;
@@ -355,7 +364,7 @@ namespace Project.WebApi.Controllers
 
             if (result.Succeeded)
             {
-                return Ok("Username updated successfully");
+                return StatusCode(StatusCodes.Status200OK, "Username updated successfully");
             }
             else
             {
@@ -369,20 +378,20 @@ namespace Project.WebApi.Controllers
         public async Task<IActionResult> ChangeEmail(ChangeEmailModel model)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // checks on newEmail
-            if (string.IsNullOrEmpty(model.NewEmail) || model.NewEmail.Length > 40 || !Regex.IsMatch(model.NewEmail, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return BadRequest("Email is not valid");
+            if (string.IsNullOrEmpty(model.NewEmail) || model.NewEmail.Length > 40 || !Regex.IsMatch(model.NewEmail, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) return StatusCode(StatusCodes.Status400BadRequest, "Email is not valid");
 
             // check the existance with the same email
             var userExists = await _userManager.FindByEmailAsync(model.NewEmail);
-            if (userExists != null) return BadRequest("Email already exists");
+            if (userExists != null) return StatusCode(StatusCodes.Status400BadRequest, "Email already exists");
 
             // get the user from the http context
             User? user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             // checks on passwords
-            if (await _userManager.CheckPasswordAsync(user!, model.CurrentPassword)) return BadRequest("Password not valid");
+            if (await _userManager.CheckPasswordAsync(user!, model.CurrentPassword)) return StatusCode(StatusCodes.Status400BadRequest, "Password not valid");
 
             // update Email
             user!.Email = model.NewEmail;
@@ -390,7 +399,7 @@ namespace Project.WebApi.Controllers
 
             if (result.Succeeded)
             {
-                return Ok("Email updated successfully");
+                return StatusCode(StatusCodes.Status200OK, "Email updated successfully");
             }
             else
             {
@@ -404,7 +413,7 @@ namespace Project.WebApi.Controllers
         public async Task<IActionResult> SelfDelete()
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get the user from the http context
             User? user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -416,7 +425,7 @@ namespace Project.WebApi.Controllers
                 List<UserRole> userRoles = _repo.UserRoleRepo.GetByFilter(x => x.RoleId == Role.Admin.Id);
                 List<User> admins = _repo.UserRepo.GetAllByRole(Role.Admin);
                 foreach (User item in admins) if (item.IsDeleted) admins.Remove(item);
-                if (admins.Count <= 1) return BadRequest("There is only one admin");
+                if (admins.Count <= 1) return StatusCode(StatusCodes.Status400BadRequest, "There is only one admin");
             }
 
             user!.IsDeleted = true;
@@ -424,7 +433,7 @@ namespace Project.WebApi.Controllers
 
             if (result.Succeeded)
             {
-                return Ok("Entity deleted successfully");
+                return StatusCode(StatusCodes.Status200OK, "Entity deleted successfully");
             }
             else
             {
@@ -438,23 +447,23 @@ namespace Project.WebApi.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get user and check if exist
             User? user = _repo.UserRepo.GetById(id);
-            if (user == null) return NotFound("User not found");
-            if (user.IsDeleted) return NotFound("User is deactivated");
+            if (user == null) return StatusCode(StatusCodes.Status404NotFound, "User not found");
+            if (user.IsDeleted) return StatusCode(StatusCodes.Status404NotFound, "User is deactivated");
 
             // check if admin
             var roles = await _userManager.GetRolesAsync(user);
-            if (roles.Contains("Admin")) return BadRequest("You cannot delete an admin.");
+            if (roles.Contains("Admin")) return StatusCode(StatusCodes.Status400BadRequest, "You cannot delete an admin.");
 
             user.IsDeleted = true;
             var result = await _userManager.UpdateAsync(user);
 
             if (result.Succeeded)
             {
-                return Ok("Entity deleted successfully");
+                return StatusCode(StatusCodes.Status200OK, "Entity deleted successfully");
             }
             else
             {
@@ -468,11 +477,11 @@ namespace Project.WebApi.Controllers
         public async Task<IActionResult> Restore(string id)
         {
             // check if audience exists
-            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return Unauthorized("Audience not found");
+            if (_repo.UserRepo.Exist("Id", HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)!, user => !user.IsDeleted).Success) return StatusCode(StatusCodes.Status401Unauthorized, "Audience not found");
 
             // get user and check if exist
             User? user = _repo.UserRepo.GetById(id);
-            if (user == null) return NotFound("User not found");
+            if (user == null) return StatusCode(StatusCodes.Status404NotFound, "User not found");
 
             user.IsDeleted = false;
             var result = await _userManager.UpdateAsync(user);
@@ -480,7 +489,7 @@ namespace Project.WebApi.Controllers
 
             if (result.Succeeded)
             {
-                return Ok("Entity restored successfully");
+                return StatusCode(StatusCodes.Status200OK, "Entity restored successfully");
             }
             else
             {
