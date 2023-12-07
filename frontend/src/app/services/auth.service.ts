@@ -5,6 +5,8 @@ import { LoginModel } from '../models/auth/Login.model';
 import { RegisterModel } from '../models/auth/Register.model';
 import { UserRoles } from '../models/user/User.roles';
 import { jwtDecode } from 'jwt-decode';
+import { Observable } from 'rxjs';
+import { LoginResponse } from '../models/auth/LoginResponse.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,16 +20,16 @@ export class AuthService {
 
   // #region http requests
 
-  login(user: LoginModel) {
-    return this.http.post(`${this.BASE_URL}/api/user/login`, user);
+  login(user: LoginModel): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.BASE_URL}/api/users/login`, user);
   }
 
   registerUser(user: RegisterModel) {
-    return this.http.post(`${this.BASE_URL}/api/user/registeruser`, user);
+    return this.http.post(`${this.BASE_URL}/api/users/registeruser`, user);
   }
 
   registerAdmin(admin: RegisterModel) {
-    return this.http.post(`${this.BASE_URL}/api/user/registeradmin`, admin);
+    return this.http.post(`${this.BASE_URL}/api/users/registeradmin`, admin);
   }
 
   refreshToken() {
@@ -35,22 +37,22 @@ export class AuthService {
   }
 
   selfGet() {
-    return this.http.get(`${this.BASE_URL}/api/user/selfget`);
+    return this.http.get(`${this.BASE_URL}/api/users/selfget`);
   }
 
   selfDelete() {
-    return this.http.delete(`${this.BASE_URL}/api/user/selfdelete`);
+    return this.http.delete(`${this.BASE_URL}/api/users/selfdelete`);
   }
 
   changeEmail(newEmail: string) {
     return this.http.put(
-      `${this.BASE_URL}/api/user/changeemail?newEmail=${newEmail}`,
+      `${this.BASE_URL}/api/users/changeemail?newEmail=${newEmail}`,
       {}
     );
   }
 
   changePassword(currentPassword: string, newPassword: string) {
-    return this.http.put(`${this.BASE_URL}/api/user/changepassword`, {
+    return this.http.put(`${this.BASE_URL}/api/users/changepassword`, {
       currentPassword: currentPassword,
       newPassword: newPassword,
     });
@@ -114,8 +116,8 @@ export class AuthService {
     return localStorage.getItem(this.REFRESH_TOKEN_NAME);
   }
 
-  setRefreshToken(token: string, expires: string, id: string) {
-    localStorage.setItem(this.REFRESH_TOKEN_NAME, JSON.stringify(token));
+  setRefreshToken(token: string) {
+    localStorage.setItem(this.REFRESH_TOKEN_NAME, token);
   }
 
   removeRefreshToken() {

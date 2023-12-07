@@ -85,11 +85,11 @@ namespace Project.WebApi.Controllers
 
             // get the user form db and check if exists
             User? user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null) return Unauthorized("Access denied");
-            if (user.IsDeleted) return Unauthorized("User is deactivated");
+            if (user == null) return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
+            if (user.IsDeleted) return StatusCode(StatusCodes.Status401Unauthorized, $"User is deactivated");
 
             // check the lockout
-            if (user.IsLockedout()) return Unauthorized($"Too many tries. You're locked out until {user.LockoutEnd}");
+            if (user.IsLockedout()) return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
 
             // getting the accessFailedMax from appsetting.json
             int accessFailedMax;
@@ -113,7 +113,7 @@ namespace Project.WebApi.Controllers
                 user.AccessFailedCount = 0;
                 user.LockoutEnd = DateTime.UtcNow + lockoutTime;
                 await _userManager.UpdateAsync(user);
-                return Unauthorized($"Too many tries. You're locked out until {user.LockoutEnd}");
+                return StatusCode(StatusCodes.Status401Unauthorized, $"Too many tries. You're locked out until {user.LockoutEnd}");
             }
 
             // check if the password is correct
@@ -121,7 +121,7 @@ namespace Project.WebApi.Controllers
             {
                 user.AccessFailedCount++;
                 await _userManager.UpdateAsync(user);
-                return Unauthorized("Access denied");
+                return StatusCode(StatusCodes.Status401Unauthorized, $"Access denied");
             }
 
             // remove the lockout
