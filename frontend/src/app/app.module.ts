@@ -13,16 +13,9 @@ import { AuthInterceptor } from './services/interceptors/auth.interceptor';
 import { ToastrModule } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Component } from '@angular/core';
-import {
-  FormControl,
-  Validators,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { NgIf } from '@angular/common';
+import {FormsModule, ReactiveFormsModule,} from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
-import { MAT_ERROR, MatError, MatFormFieldModule } from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 @NgModule({
   declarations: [
     AppComponent,

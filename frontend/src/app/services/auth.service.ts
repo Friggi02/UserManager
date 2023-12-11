@@ -15,6 +15,7 @@ export class AuthService {
   private ACCESS_TOKEN_NAME = 'accessJwtToken';
   private REFRESH_TOKEN_NAME = 'refreshJwtToken';
   private BASE_URL = Config.BASE_URL;
+  public user: string | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -24,8 +25,8 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.BASE_URL}/api/users/login`, user);
   }
 
-  registerUser(user: RegisterModel) {
-    return this.http.post(`${this.BASE_URL}/api/users/registeruser`, user);
+  registerUser(user: RegisterModel): Observable<string> {
+    return this.http.post(`${this.BASE_URL}/api/users/registeruser`, user, {responseType :'text'});
   }
 
   registerAdmin(admin: RegisterModel) {
@@ -45,10 +46,7 @@ export class AuthService {
   }
 
   changeEmail(newEmail: string) {
-    return this.http.put(
-      `${this.BASE_URL}/api/users/changeemail?newEmail=${newEmail}`,
-      {}
-    );
+    return this.http.put(`${this.BASE_URL}/api/users/changeemail?newEmail=${newEmail}`, {});
   }
 
   changePassword(currentPassword: string, newPassword: string) {
