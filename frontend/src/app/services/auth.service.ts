@@ -41,8 +41,8 @@ export class AuthService {
     return this.http.get(`${this.BASE_URL}/api/users/selfget`);
   }
 
-  selfDelete() {
-    return this.http.delete(`${this.BASE_URL}/api/users/selfdelete`);
+  selfDelete(): Observable<string> {
+    return this.http.delete(`${this.BASE_URL}/api/users/selfdelete`, {responseType :'text'});
   }
 
   changeEmail(newEmail: string) {
@@ -99,7 +99,7 @@ export class AuthService {
   }
 
   setAccessToken(token: string) {
-    localStorage.setItem(this.ACCESS_TOKEN_NAME, JSON.stringify(token));
+    localStorage.setItem(this.ACCESS_TOKEN_NAME, token);
   }
 
   removeAccessToken() {

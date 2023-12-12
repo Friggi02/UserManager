@@ -16,6 +16,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {FormsModule, ReactiveFormsModule,} from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ProfileComponent } from './components/profile/profile/profile.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { DeleteProfileDialogComponent } from './components/profile/delete-profile-dialog/delete-profile-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,6 +28,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     HomeComponent,
     LoaderComponent,
     NavbarComponent,
+    ProfileComponent,
+    DeleteProfileDialogComponent
   ],
   imports: [
     CommonModule,
@@ -36,6 +42,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,
+    MatDialogModule,
+    MatButtonModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
