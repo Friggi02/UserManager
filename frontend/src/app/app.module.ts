@@ -20,6 +20,7 @@ import { ProfileComponent } from './components/profile/profile/profile.component
 import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteProfileDialogComponent } from './components/profile/delete-profile-dialog/delete-profile-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
+import { ChangePasswordDialogComponent } from './components/profile/change-password-dialog/change-password-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -29,7 +30,8 @@ import { MatButtonModule } from '@angular/material/button';
     LoaderComponent,
     NavbarComponent,
     ProfileComponent,
-    DeleteProfileDialogComponent
+    DeleteProfileDialogComponent,
+    ChangePasswordDialogComponent
   ],
   imports: [
     CommonModule,

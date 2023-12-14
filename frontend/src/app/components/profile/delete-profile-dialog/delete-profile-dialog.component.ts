@@ -21,13 +21,13 @@ export class DeleteProfileDialogComponent {
   onDelete() {
     this.dialog.closeAll();
     this.authService.selfDelete().subscribe({
-      next:(response)=>{
+      next:()=>{
         this.authService.removeAccessToken();
         this.authService.removeRefreshToken();
         this.router.navigate(['/']);
       },
-      error:(e)=>{
-        this.alert.error(e.error, 'Delete account failed');
+      error:(response)=>{
+        this.alert.error(response.error, 'Delete account failed');
       }
     })
   }

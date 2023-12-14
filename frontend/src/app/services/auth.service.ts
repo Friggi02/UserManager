@@ -22,11 +22,16 @@ export class AuthService {
   // #region http requests
 
   login(user: LoginModel): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.BASE_URL}/api/users/login`, user);
+    return this.http.post<LoginResponse>(
+      `${this.BASE_URL}/api/users/login`,
+      user
+    );
   }
 
   registerUser(user: RegisterModel): Observable<string> {
-    return this.http.post(`${this.BASE_URL}/api/users/registeruser`, user, {responseType :'text'});
+    return this.http.post(`${this.BASE_URL}/api/users/registeruser`, user, {
+      responseType: 'text',
+    });
   }
 
   registerAdmin(admin: RegisterModel) {
@@ -42,18 +47,32 @@ export class AuthService {
   }
 
   selfDelete(): Observable<string> {
-    return this.http.delete(`${this.BASE_URL}/api/users/selfdelete`, {responseType :'text'});
+    return this.http.delete(`${this.BASE_URL}/api/users/selfdelete`, {
+      responseType: 'text',
+    });
   }
 
   changeEmail(newEmail: string) {
-    return this.http.put(`${this.BASE_URL}/api/users/changeemail?newEmail=${newEmail}`, {});
+    return this.http.put(
+      `${this.BASE_URL}/api/users/changeemail?newEmail=${newEmail}`,
+      {}
+    );
   }
 
-  changePassword(currentPassword: string, newPassword: string) {
-    return this.http.put(`${this.BASE_URL}/api/users/changepassword`, {
-      currentPassword: currentPassword,
-      newPassword: newPassword,
-    });
+  changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Observable<string>{
+    return this.http.put(
+      `${this.BASE_URL}/api/users/changepassword`,
+      {
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      },
+      {
+        responseType: 'text'
+      }
+    );
   }
 
   // #endregion

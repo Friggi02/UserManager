@@ -62,19 +62,19 @@ export class LoginComponent {
 
   onLogin() {
     
-    let x = new LoginModel(
+    let loginModel = new LoginModel(
       this.loginForm.get('email')?.value,
       this.loginForm.get('password')?.value
     );
 
-    this.authService.login(x).subscribe({
+    this.authService.login(loginModel).subscribe({
       next:(response)=>{
         this.authService.setAccessToken(response.accessToken);
         this.authService.setRefreshToken(response.refreshToken);
         this.router.navigate(["/"]);
       },
-      error:(e)=>{
-        this.alert.error(e.error, 'Login failed');
+      error:(response)=>{
+        this.alert.error(response.error, 'Login failed');
       }
     });
   }

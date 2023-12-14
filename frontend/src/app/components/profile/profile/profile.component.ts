@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { DeleteProfileDialogComponent } from '../delete-profile-dialog/delete-profile-dialog.component';
+import { ChangePasswordDialogComponent } from '../change-password-dialog/change-password-dialog.component';
 
 @Component({
   selector: 'app-profile',
@@ -9,13 +10,13 @@ import { DeleteProfileDialogComponent } from '../delete-profile-dialog/delete-pr
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent {
-  
-  constructor(
-    private alert: ToastrService,
-    public dialog: MatDialog
-  ) {}
+  constructor(private alert: ToastrService, public dialog: MatDialog) {}
 
-  onDelete(){
+  onDelete() {
     this.dialog.open(DeleteProfileDialogComponent);
+  }
+
+  onChangePassword() {
+    this.dialog.open(ChangePasswordDialogComponent);
   }
 }

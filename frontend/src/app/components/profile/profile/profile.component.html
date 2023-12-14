@@ -9,12 +9,14 @@
         </div>
         <h1 style="padding-top: 2rem; padding-bottom: -2rem;">Andrea Frigerio</h1>
         <h3>@fritz</h3>
-        <button class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded m-3">
-            <i class="bi bi-shield-lock"></i> 
+        <button (click)="onChangePassword()"
+            class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded m-3">
+            <i class="bi bi-shield-lock"></i>
             Change password
         </button>
-        <button (click)="onDelete()" class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded m-3">
-            <i class="bi bi-trash3"></i> 
+        <button (click)="onDelete()"
+            class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded m-3">
+            <i class="bi bi-trash3"></i>
             Delete account
         </button>
     </div>
