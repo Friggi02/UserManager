@@ -127,13 +127,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ASP.NET 7 Web API v1"));
 }
 
-// Apply any pending migrations to the database upon scope creation
-using (var scope = app.Services.CreateScope())
-{
-    var ctx = scope.ServiceProvider.GetService<ProjectDbContext>();
-    ctx?.Database.Migrate();
-}
-
 // Add necessary middleware
 app.UseHttpsRedirection();
 app.UseCors(defaultCors);
