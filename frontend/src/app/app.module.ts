@@ -19,8 +19,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ProfileComponent } from './components/profile/profile/profile.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { DeleteProfileDialogComponent } from './components/profile/delete-profile-dialog/delete-profile-dialog.component';
-import { MatButtonModule } from '@angular/material/button';
+import { MatButtonModule, MatIconAnchor, MatIconButton } from '@angular/material/button';
 import { ChangePasswordDialogComponent } from './components/profile/change-password-dialog/change-password-dialog.component';
+import { EditableProfilePictureComponent } from './components/profile/editable-profile-picture/editable-profile-picture.component';
+import { ChangeProfilePictureDialogComponent } from './components/profile/change-profile-picture-dialog/change-profile-picture-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,7 +33,9 @@ import { ChangePasswordDialogComponent } from './components/profile/change-passw
     NavbarComponent,
     ProfileComponent,
     DeleteProfileDialogComponent,
-    ChangePasswordDialogComponent
+    ChangePasswordDialogComponent,
+    EditableProfilePictureComponent,
+    ChangeProfilePictureDialogComponent
   ],
   imports: [
     CommonModule,

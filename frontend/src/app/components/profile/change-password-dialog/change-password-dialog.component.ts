@@ -60,7 +60,6 @@ export class ChangePasswordDialogComponent {
   }
 
   onSave() {
-    console.log("aaaaaa");
     this.authService.changePassword(
       this.changePasswordForm.get('currentPassword')?.value,
       this.changePasswordForm.get('newPassword')?.value

@@ -2,11 +2,7 @@
 
 <div class="flex flex-row flex-wrap justify-around m-5">
     <div class="inline-flex flex-col items-center justify-center rounded-xl shadow-xl shadow-black p-10 m-5">
-        <div class="avatar">
-            <div class="w-36 rounded-full">
-                <img src="assets/profile_blank.webp" class="max-w-[10rem]" />
-            </div>
-        </div>
+        <app-editable-profile-picture></app-editable-profile-picture>
         <h1 style="padding-top: 2rem; padding-bottom: -2rem;">Andrea Frigerio</h1>
         <h3>@fritz</h3>
         <button (click)="onChangePassword()"

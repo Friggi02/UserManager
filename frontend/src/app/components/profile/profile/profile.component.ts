@@ -10,7 +10,7 @@ import { ChangePasswordDialogComponent } from '../change-password-dialog/change-
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent {
-  constructor(private alert: ToastrService, public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog) {}
 
   onDelete() {
     this.dialog.open(DeleteProfileDialogComponent);
