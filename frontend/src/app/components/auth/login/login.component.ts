@@ -12,12 +12,14 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class LoginComponent {
 
+  loading: boolean = false;
+
   constructor(
     private authService: AuthService,
     private alert: ToastrService,
     private router: Router
   ){
-    this.loginForm.get('email')?.setValue(this.authService.user);
+    this.loginForm.get('email')?.setValue(this.authService.email);
   }
 
   public loginForm: FormGroup = new FormGroup({
@@ -66,16 +68,23 @@ export class LoginComponent {
       this.loginForm.get('email')?.value,
       this.loginForm.get('password')?.value
     );
-
+    console.log(this.loading);
+    this.loading = true;
+    console.log(this.loading);
     this.authService.login(loginModel).subscribe({
       next:(response)=>{
         this.authService.setAccessToken(response.accessToken);
         this.authService.setRefreshToken(response.refreshToken);
+        this.authService.setProfilePic(response.user.profilePic)
+        this.authService.user = response.user;
         this.router.navigate(["/"]);
       },
       error:(response)=>{
         this.alert.error(response.error, 'Login failed');
       }
     });
+
+    //this.loading = false;
+    console.log(this.loading);
   }
 }

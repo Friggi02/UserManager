@@ -9,10 +9,14 @@ import { AuthService } from 'src/app/services/auth.service';
 })
 export class NavbarComponent{
 
+  profilePic: boolean = false;
+
   constructor(
-    private authService: AuthService,
+    public authService: AuthService,
     private router: Router
-  ){}
+  ){
+    this.profilePic = this.authService.getProfilePic() !== null;
+  }
 
   isAuthenticated() : boolean {
     return !!this.authService.getAccessToken();
@@ -21,6 +25,7 @@ export class NavbarComponent{
   onLogout(){
     this.authService.removeAccessToken();
     this.authService.removeRefreshToken();
+    this.authService.removeProfilePic();
     this.router.navigate(['/']);
   }
 }

@@ -1,27 +1,10 @@
-.profile-pic {
-    opacity: 1;
-    /* display: block;
-    width: 100%;
-    height: auto; */
-    transition: .5s ease;
-    backface-visibility: hidden;
+.field{
+    max-width: 50%;
+    padding-bottom: 2rem;
+    height: 6rem;
 }
 
-.edit-profile-pic {
-  transition: .5s ease;
-  opacity: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  -ms-transform: translate(-50%, -50%);
-  text-align: center;
-}
-
-.profile-pic-container:hover .profile-pic {
-  opacity: 0.3;
-}
-
-.profile-pic-container:hover .edit-profile-pic {
-  opacity: 1;
+.little-button{
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
 }

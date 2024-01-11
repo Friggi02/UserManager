@@ -10,6 +10,7 @@ using Project.Dal.Entities;
 using Project.Dal.Jwt;
 using Project.Dal.Permit;
 using Project.Dal.Repositories.Interfaces;
+using Project.WebApi.DTO;
 using Project.WebApi.DTO.Input;
 
 namespace Project.WebApi.Controllers
@@ -22,17 +23,20 @@ namespace Project.WebApi.Controllers
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _repo;
         private readonly IJwtProvider _jwtProvider;
+        private readonly Mapper _mapper;
 
         public UsersController(
             UserManager<User> userManager,
             IConfiguration configuration,
             IUnitOfWork repo,
-            IJwtProvider jwtProvider)
+            IJwtProvider jwtProvider,
+            Mapper mapper)
         {
             _userManager = userManager;
             _configuration = configuration;
             _repo = repo;
             _jwtProvider = jwtProvider;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -58,7 +62,7 @@ namespace Project.WebApi.Controllers
         }
 
         [HttpGet]
-        [HasPermission(Permissions.ManageMyself)]
+        //[HasPermission(Permissions.ManageMyself)]
         [Route("SelfGet")]
         public async Task<IActionResult> SelfGet()
         {
@@ -70,7 +74,7 @@ namespace Project.WebApi.Controllers
             // get the user from the http context
             User? user = await _userManager.FindByIdAsync(audienceId);
 
-            return Ok(user);
+            return Ok(_mapper.MapUserToDTO(user!));
         }
 
         [HttpPost]
@@ -140,7 +144,8 @@ namespace Project.WebApi.Controllers
             return Ok(new
             {
                 accessToken = newAccessToken,
-                refreshToken = newRefreshToken
+                refreshToken = newRefreshToken,
+                user = _mapper.MapUserToDTO(user)
             });
         }
 

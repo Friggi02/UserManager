@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ChangeProfilePictureDialogComponent } from '../change-profile-picture-dialog/change-profile-picture-dialog.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-editable-profile-picture',
@@ -9,7 +10,14 @@ import { ChangeProfilePictureDialogComponent } from '../change-profile-picture-d
 })
 export class EditableProfilePictureComponent {
 
-  constructor(public dialog: MatDialog) {}
+  profilePic: boolean = false;
+
+  constructor(
+    public dialog: MatDialog,
+    public authService: AuthService,
+  ) {
+    this.profilePic = this.authService.getProfilePic() !== null;
+  }
   
   onEditPic(){
     this.dialog.open(ChangeProfilePictureDialogComponent);

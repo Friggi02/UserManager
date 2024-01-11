@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { LoginModel } from '../models/auth/Login.model';
 import { RegisterModel } from '../models/auth/Register.model';
 import { UserRoles } from '../models/user/User.roles';
+import { UserModel } from '../models/user/User.model';
 import { jwtDecode } from 'jwt-decode';
 import { Observable } from 'rxjs';
 import { LoginResponse } from '../models/auth/LoginResponse.model';
@@ -14,8 +15,10 @@ import { LoginResponse } from '../models/auth/LoginResponse.model';
 export class AuthService {
   private ACCESS_TOKEN_NAME = 'accessJwtToken';
   private REFRESH_TOKEN_NAME = 'refreshJwtToken';
+  private PROFILE_PIC_NAME = 'profilePic';
   private BASE_URL = Config.BASE_URL;
-  public user: string | null = null;
+  public user: UserModel | null = null;
+  public email: string = "";
 
   constructor(private http: HttpClient) {}
 
@@ -42,8 +45,8 @@ export class AuthService {
     //let refreshTokenModel = this.
   }
 
-  selfGet() {
-    return this.http.get(`${this.BASE_URL}/api/users/selfget`);
+  selfGet(): Observable<UserModel> {
+    return this.http.get<UserModel>(`${this.BASE_URL}/api/users/selfget`);
   }
 
   selfDelete(): Observable<string> {
@@ -127,6 +130,24 @@ export class AuthService {
 
   // #endregion
 
+  // #region managing ProfilePic in LocalStorage
+
+  getProfilePic(): string | null {
+    return localStorage.getItem(this.PROFILE_PIC_NAME);
+  }
+
+  setProfilePic(link: string | null) {
+    if (link !== null){
+      localStorage.setItem(this.PROFILE_PIC_NAME, link);
+    }
+  }
+
+  removeProfilePic() {
+    localStorage.removeItem(this.PROFILE_PIC_NAME);
+  }
+
+  // #endregion
+  
   // #region managing RefreshToken in LocalStorage
 
   getRefreshToken(): string | null {

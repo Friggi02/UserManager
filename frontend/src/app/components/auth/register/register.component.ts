@@ -70,7 +70,7 @@ export class RegisterComponent {
 
     this.authService.registerUser(registerModel).subscribe({
       next:(response)=>{
-        this.authService.user = response;
+        this.authService.email = response;
         this.router.navigate(['login']);
         this.alert.success('User successfully registered', 'Welcome!');
       },

@@ -3,5 +3,6 @@
         <i class="bi bi-camera"></i>
         <span>Change Image</span>
     </label>
-    <img src="assets/profile_blank.webp" id="output" width="200" />
+    <img *ngIf="!profilePic" src="assets/profile_blank.webp" id="output" width="200" />
+    <img *ngIf="profilePic" [src]="this.authService.getProfilePic()" id="output" width="200" />
 </div>

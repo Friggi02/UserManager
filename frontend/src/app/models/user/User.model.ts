@@ -1,25 +1,21 @@
 export class UserModel {
-  constructor(
-    public userId: string,
-    public email: string,
+  id: string;
+  email: string;
+  username: string;
+  isDeleted: boolean;
+  name: string | null;
+  surname: string | null;
+  profilePic: string | null = null;
+  roles: string[];
 
-    public personalImage: string,
-
-    public name: string | null,
-    public surname: string | null,
-    public username: string | null,
-
-    public birthDate: string | null,
-    public cf: string | null,
-    public fidelityCardNumber: string | null,
-
-    public phoneNumberConfirmed: boolean,
-    public accessFailedCount: any,
-    public binaryFidelityNumber: any,
-    public lockoutEnabled: any,
-    public lockoutEnd: any,
-
-    public isDeleted: boolean,
-    public roles: string
-  ) {}
+  constructor(id: string, email: string, username: string, isDeleted: boolean, name: string, surname: string, profilePic: string, roles: string[]) {
+      this.id = id;
+      this.email = email;
+      this.username = username;
+      this.isDeleted = isDeleted;
+      this.name = name;
+      this.surname = surname;
+      this.profilePic = profilePic;
+      this.roles = roles;
+  }
 }

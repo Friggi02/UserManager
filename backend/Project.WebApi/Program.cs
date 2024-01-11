@@ -12,6 +12,7 @@ using Project.Dal.Permit;
 using Project.Dal.Repositories;
 using Project.Dal.Repositories.Interfaces;
 using Project.WebApi;
+using Project.WebApi.DTO;
 
 // Create a new instance of the web application builder
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +79,7 @@ builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHand
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+builder.Services.AddScoped<Mapper>();
 
 // Add Swagger and Swagger UI to the service collection
 builder.Services.AddEndpointsApiExplorer();
