@@ -9,7 +9,7 @@ namespace Project.Dal.Repositories
         {
         }
 
-        public Result Update(User entity)
+        public bool Update(User entity)
         {
             throw new NotImplementedException();
         }

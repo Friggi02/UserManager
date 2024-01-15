@@ -29,7 +29,7 @@ namespace Project.Dal.Repositories
                 .ToHashSet();
         }
 
-        public Result Update(Permission entity)
+        public bool Update(Permission entity)
         {
             throw new NotImplementedException();
         }
