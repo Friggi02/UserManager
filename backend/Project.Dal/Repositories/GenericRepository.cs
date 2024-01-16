@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.EntityFrameworkCore;
-using Project.Dal.Entities;
 
 namespace Project.Dal.Repositories
 {
@@ -105,7 +104,7 @@ namespace Project.Dal.Repositories
 
             if (property == null)
                 throw new ArgumentException($"The property '{propertyName}' does not exist in the type '{typeof(T).Name}'.");
-            if (property.PropertyType != typeof(int))
+            if (property.PropertyType != typeof(Guid))
                 throw new InvalidCastException($"The type of the property '{propertyName}' is not 'Guid', but '{property.PropertyType.Name}'.");
 
             bool exist = predicate == null
@@ -123,7 +122,7 @@ namespace Project.Dal.Repositories
 
             if (property == null)
                 throw new ArgumentException($"The property '{propertyName}' does not exist in the type '{typeof(T).Name}'.");
-            if (property.PropertyType != typeof(int))
+            if (property.PropertyType != typeof(string))
                 throw new InvalidCastException($"The type of the property '{propertyName}' is not 'string', but '{property.PropertyType.Name}'.");
 
             bool exist = predicate == null

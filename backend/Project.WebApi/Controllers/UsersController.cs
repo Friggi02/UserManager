@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
-using Microsoft.IdentityModel.Tokens;
 using Project.Dal.Entities;
 using Project.Dal.Jwt;
 using Project.Dal.Permit;
@@ -63,7 +62,7 @@ namespace Project.WebApi.Controllers
         }
 
         [HttpGet]
-        //[HasPermission(Permissions.ManageMyself)]
+        [HasPermission(Permissions.ManageMyself)]
         [Route("SelfGet")]
         public async Task<IActionResult> SelfGet()
         {
